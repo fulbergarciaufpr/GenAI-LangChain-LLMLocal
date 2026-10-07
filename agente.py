@@ -20,13 +20,12 @@ while (True):
     break
 
   history.append(("human", prompt.strip("\n").replace(",","")))
-  print(history)
   llm_answer = llm.invoke(history)
   edit_content = llm_answer.content.replace("\n\n", "\n").replace("\n", "\n     ")
   edit_content = "\nLLM: " + edit_content + "\n"
   print(edit_content)
   history.append(("assistant", edit_content.replace("\n", " ").replace(",","")))
-  if (len(history) > 3):
+  if (len(history) > 9):
     history.pop(1)
     history.pop(1)
 
