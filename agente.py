@@ -1,5 +1,6 @@
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 
 import csv
 
@@ -17,6 +18,10 @@ csv_file.close()
 prompt = ChatPromptTemplate([system,\
                             ("placeholder", "{history}"),\
                             ("human", "{message}")])
+output_parser = StrOutputParser()
+
+chain = prompt | llm | output_parser
+
 message = ""
 while (True):
   message = input("Usuário: ")
@@ -25,13 +30,10 @@ while (True):
   if (message == "sair" or message == "exit"):
     break
 
-  llm_prompt = prompt.invoke({"history":history, "message":message})
-  llm_answer = llm.invoke(llm_prompt)
-  edit_content = llm_answer.content.replace("\n\n", "\n").replace("\n", "\n     ")
-  edit_content = "\nLLM: " + edit_content + "\n"
-  print(edit_content)
+  edit_content = chain.invoke({"history":history, "message":message}).replace("\n\n", "\n").replace("\n", "\n     ")
+  print("\nLLM: " + edit_content + "\n")
   history.append(("human", message.strip("\n").replace(",","")))
-  history.append(("assistant", edit_content.replace("\n", " ").replace(",","").strip("\nLLM: ")))
+  history.append(("assistant", edit_content.replace("\n", " ").replace(",","")))
   if (len(history) > 8):
     history.pop(1)
     history.pop(1)
